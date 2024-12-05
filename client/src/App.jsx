@@ -1,35 +1,49 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
+import Login from './components/Login';
+import Register from './components/Register';
+import AddTask from './components/AddTask';
+import TaskList from './components/TaskList';
+import Timeline from './components/Timeline';
+import Navbar from './components/Navbar';
+// import './styles/tailwind.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [tasks, setTasks] = useState([]);
+
+  const addTask = (task) => {
+    setTasks([...tasks, { id: Date.now(), text: task, date: new Date().toLocaleDateString(), description: `Description for ${task}` }]);
+  };
+
+  const deleteTask = (taskId) => {
+    setTasks(tasks.filter(task => task.id !== taskId));
+  };
+
+  const updateTask = (updatedTask) => {
+    setTasks(tasks.map(task => task.id === updatedTask.id ? updatedTask : task));
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <Navbar />
+        <div className="container mx-auto p-4">
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/login" element={<Login onLogin={(email, password) => console.log("Login", email, password)} />} />
+            <Route path="/register" element={<Register onRegister={(email, password) => console.log("Register", email, password)} />} />
+            <Route path="/tasks" element={
+              <>
+                <AddTask addTask={addTask} />
+                <TaskList tasks={tasks} deleteTask={deleteTask} updateTask={updateTask} />
+                <Timeline tasks={tasks} />
+              </>
+            } />
+          </Routes>
+        </div>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    </Router>
+  );
+};
 
-export default App
+export default App;
